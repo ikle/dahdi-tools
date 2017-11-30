@@ -32,6 +32,10 @@
 #include <linux/if.h>
 #include <linux/sockios.h>
 
+#ifndef IF_PROTO_CISCO_ETH
+#define IF_PROTO_CISCO_ETH	0x200D	/* Cisco HDLC, Ethernet emulation */
+#endif
+
 #include <dahdi/user.h>
 #include "dahdi_tools_version.h"
 
@@ -166,6 +170,7 @@ static parsertab clocks[] = {{ "int", CLOCK_INT },
 
 static parsertab protos[] = {{ "hdlc", IF_PROTO_HDLC},
 			     { "cisco", IF_PROTO_CISCO},
+			     { "cisco-eth", IF_PROTO_CISCO_ETH},
 			     { "fr", IF_PROTO_FR},
 			     { "ppp", IF_PROTO_PPP},
 			     { "x25", IF_PROTO_X25},
@@ -410,6 +415,7 @@ static void set_proto(void)
 	switch(req.ifr_settings.type) {
 	case IF_PROTO_HDLC: set_proto_hdlc(0); break;
 #ifdef IF_PROTO_HDLC_ETH
+	case IF_PROTO_CISCO_ETH:
 	case IF_PROTO_HDLC_ETH: set_proto_hdlc(1); break;
 #endif
 	case IF_PROTO_CISCO: set_proto_cisco(); break;
@@ -611,6 +617,7 @@ static void show_port(void)
 			break;
 #endif
 
+		case IF_PROTO_CISCO_ETH:
 		case IF_PROTO_CISCO:
 			printf("protocol cisco interval %u timeout %u\n",
 			       cisco->interval,
