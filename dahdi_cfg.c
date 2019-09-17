@@ -46,6 +46,10 @@
 #include "tonezone.h"
 #include "dahdi_tools_version.h"
 
+#ifndef DAHDI_CONFIG_UNFRAMED
+#define DAHDI_CONFIG_UNFRAMED  0
+#endif
+
 #define CONFIG_FILENAME "/etc/dahdi/system.conf"
 #define MASTER_DEVICE   "/dev/dahdi/ctl"
 
@@ -443,20 +447,20 @@ int spanconfig(char *keyword, char *args)
 		error("Line build-out should be in the range 0 to 7, not %d\n", lc[spans].lbo);
 		return -1;
 	}
+
+	lc[spans].lineconfig &= ~(DAHDI_CONFIG_D4 | DAHDI_CONFIG_ESF |
+				  DAHDI_CONFIG_CCS | DAHDI_CONFIG_UNFRAMED);
+
 	if (!strcasecmp(realargs[3], "d4")) {
 		lc[spans].lineconfig |= DAHDI_CONFIG_D4;
-		lc[spans].lineconfig &= ~DAHDI_CONFIG_ESF;
-		lc[spans].lineconfig &= ~DAHDI_CONFIG_CCS;
 	} else if (!strcasecmp(realargs[3], "esf")) {
 		lc[spans].lineconfig |= DAHDI_CONFIG_ESF;
-		lc[spans].lineconfig &= ~DAHDI_CONFIG_D4;
-		lc[spans].lineconfig &= ~DAHDI_CONFIG_CCS;
 	} else if (!strcasecmp(realargs[3], "ccs")) {
 		lc[spans].lineconfig |= DAHDI_CONFIG_CCS;
-		lc[spans].lineconfig &= ~(DAHDI_CONFIG_ESF | DAHDI_CONFIG_D4);
+	} else if (!strcasecmp(realargs[3], "unframed")) {
+		lc[spans].lineconfig |= DAHDI_CONFIG_UNFRAMED;
 	} else if (!strcasecmp(realargs[3], "cas")) {
-		lc[spans].lineconfig &= ~DAHDI_CONFIG_CCS;
-		lc[spans].lineconfig &= ~(DAHDI_CONFIG_ESF | DAHDI_CONFIG_D4);
+		/* nothing */
 	} else {
 		error("Framing(T1)/Signalling(E1) must be one of 'd4', 'esf', 'cas' or 'ccs', not '%s'\n", realargs[3]);
 		return -1;
@@ -1350,6 +1354,7 @@ static void printconfig(int fd)
 		       lc[x].span,
 		       (lc[x].lineconfig & DAHDI_CONFIG_D4 ? "D4" :
 			lc[x].lineconfig & DAHDI_CONFIG_ESF ? "ESF" :
+			lc[x].lineconfig & DAHDI_CONFIG_UNFRAMED ? "unframed" :
 			lc[x].lineconfig & DAHDI_CONFIG_CCS ? "CCS" : "CAS"),
 		       (lc[x].lineconfig & DAHDI_CONFIG_AMI ? "AMI" :
 			lc[x].lineconfig & DAHDI_CONFIG_B8ZS ? "B8ZS" :

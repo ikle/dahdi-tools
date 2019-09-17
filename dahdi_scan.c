@@ -37,6 +37,10 @@
 
 #include "dahdi_tools_version.h"
 
+#ifndef DAHDI_CONFIG_UNFRAMED
+#define DAHDI_CONFIG_UNFRAMED  0
+#endif
+
 static inline int is_digital_span(struct dahdi_spaninfo *s)
 {
 	return (s->linecompat > 0);
@@ -216,6 +220,7 @@ int main(int argc, char *argv[])
 			if (s.linecompat & DAHDI_CONFIG_D4) strcat(buf, "D4,");
 			if (s.linecompat & DAHDI_CONFIG_CCS) strcat(buf, "CCS,");
 			if (s.linecompat & DAHDI_CONFIG_CRC4) strcat(buf, "CRC4,");
+			if (s.linecompat & DAHDI_CONFIG_UNFRAMED) strcat(buf, "unframed,");
 			buf[strlen(buf) - 1] = '\0';
 			fprintf(stdout, "%s\n", buf);
 			fprintf(stdout, "coding=");
