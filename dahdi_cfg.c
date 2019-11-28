@@ -716,7 +716,7 @@ static int chanconfig(char *keyword, char *args)
 					}
 					master = x;
 				}
-			} else if (!strcasecmp(keyword, "fcshdlc")) {
+			} else if (!strcasecmp(keyword, "fcshdlc") || !strcasecmp(keyword, "dchan")) {
 				sig[x] = sigtype_to_str(DAHDI_SIG_HDLCFCS);
 				if (master) {
 					cc[x].sigtype = DAHDI_SIG_SLAVE;
@@ -725,12 +725,16 @@ static int chanconfig(char *keyword, char *args)
 					cc[x].sigtype = DAHDI_SIG_HDLCFCS;
 					master = x;
 				}
-			} else if (!strcasecmp(keyword, "dchan")) {
-				sig[x] = "D-channel";
-				cc[x].sigtype = DAHDI_SIG_HDLCFCS;
 			} else if (!strcasecmp(keyword, "hardhdlc")) {
-				sig[x] = "Hardware assisted D-channel";
-				cc[x].sigtype = DAHDI_SIG_HARDHDLC;
+				sig[x] = sigtype_to_str(DAHDI_SIG_HARDHDLC);
+				if (master) {
+					cc[x].sigtype = DAHDI_SIG_SLAVE;
+					cc[x].master = master;
+				}
+				else {
+					cc[x].sigtype = DAHDI_SIG_HARDHDLC;
+					master = x;
+				}
 			} else if (!strcasecmp(keyword, "mtp2")) {
 				sig[x] = "MTP2";
 				cc[x].sigtype = DAHDI_SIG_MTP2;
